@@ -9,18 +9,31 @@ medals = pd.read_csv('olympic_medals.csv') # Load the data
 
 # print(medals)
 
-# extract year from slug_game
+# Extract year from slug_game
 medals["year"] = medals["slug_game"].apply(lambda x: int(re.search(r'\d{4}', x).group()))
 
-# print(medals)
+# Define Summer Olympic sports
+summer_olympic_sports = [
+    '3x3 Basketball', 'Archery', 'Artistic Gymnastics', 'Artistic Swimming', 'Athletics',
+    'Badminton', 'Baseball', 'Baseball/Softball', 'Basketball', 'Beach Volleyball',
+    'Boxing', 'Canoe Marathon', 'Canoe Slalom', 'Canoe Sprint', 'Cricket', 'Cycling BMX',
+    'Cycling BMX Freestyle', 'Cycling BMX Racing', 'Cycling Mountain Bike', 'Cycling Road',
+    'Cycling Track', 'Diving', 'Equestrian', 'Fencing', 'Football', 'Golf', 'Gymnastics Artistic',
+    'Gymnastics Rhythmic', 'Handball', 'Hockey', 'Judo', 'Karate', 'Lacrosse', 'Marathon Swimming',
+    'Modern Pentathlon', 'Polo', 'Rhythmic Gymnastics', 'Rowing', 'Rugby', 'Rugby Sevens',
+    'Sailing', 'Shooting', 'Skateboarding', 'Softball', 'Sport Climbing', 'Surfing', 'Swimming',
+    'Synchronized Swimming', 'Table Tennis', 'Taekwondo', 'Tennis', 'Trampoline', 'Triathlon',
+    'Volleyball', 'Water Polo', 'Weightlifting', 'Wrestling'
+]
 
-olympic_medals = medals[medals["year"] % 4 == 0] # Filter the data to only include years divisible by 4
+# Filter the dataset to include only Summer Olympic sports
+summer_olympic_medals = medals[medals["discipline_title"].isin(summer_olympic_sports)]
 
 # drop the temporary column
-olympic_medals = olympic_medals.drop(columns=["year"], axis=1)
+summer_olympic_medals = summer_olympic_medals.drop("year", axis=1)
+# print(summer_olympic_medals)
 
-# print(olympic_medals[olympic_medals["country_name"] == "United States of America"])
+# Group by country, sport, and medal type, and count the occurrences
+medals_by_country = summer_olympic_medals.groupby(["country_name", "discipline_title", "medal_type"]).size().reset_index(name="medals")
 
-medals_by_country = olympic_medals.groupby(["country_name", "discipline_title", "medal_type"]).size().reset_index(name="medals")
-
-# print(medals_by_country[medals_by_country["country_name"] == "United States of America"])
+print(medals_by_country)
