@@ -1,4 +1,4 @@
-# 🏅 2024 Olympics Champion Prediction📊
+# 🏆 Gold Rush: Predicting the 2024 Olympics Champion 🏅
 
 ## 🌟 Overview
 Welcome to the 2024 Olympics Champion Prediction Project! This project focuses on analyzing historical Olympic Games data to uncover insights about medal counts, athlete performances, and trends across different sports and countries. We use Python along with libraries such as pandas, numpy, and plotly for data manipulation, analysis, and visualization.
