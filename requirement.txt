@@ -1,1 +1,6 @@
+tk
+pandas
+re
 plotly
+scikit-learn
+numpy
