@@ -4,6 +4,8 @@ import pandas as pd
 import re
 import plotly.express as px
 import plotly.io as pio
+from sklearn.linear_model import LinearRegression
+import numpy as np
 
 # Load the data
 medals = pd.read_csv('olympic_results.csv')
@@ -41,16 +43,11 @@ country_mapping = {
 
 # Function to process each sport
 def process_sport_data(sport, use_modern_names):
-    print(f"Processing data for {sport}...")
-
     sport_data = medals[medals['discipline_title'] == sport]
     
     # Creating df with relevant columns
     sport_data = sport_data[['event_title', 'slug_game', 'medal_type', 'rank_position', 'country_name', 'country_code', 'athlete_full_name']]
-
-    # Resetting index
-    sport_data.reset_index(drop=True, inplace=True)
-
+    
     # Extracting host city
     sport_data['Host City'] = sport_data['slug_game'].str.rsplit('-').str[0]
     sport_data['Host City'] = sport_data['Host City'].str.title()
@@ -82,8 +79,17 @@ def process_sport_data(sport, use_modern_names):
         # Applying country mapping for modern names
         sport_data['Country'] = sport_data['Country'].replace(country_mapping)
 
+    return sport_data
+
+# Function to show the data in the GUI
+def show_data():
+    selected_sport = sport_var.get()
+    use_modern_names = modern_names_var.get() == "Modern"
+    
+    data = process_sport_data(selected_sport, use_modern_names)
+    
     # Grouping by country and medal type, then pivoting
-    medals_by_country_type = sport_data.groupby(['Country', 'Medal']).size().unstack(fill_value=0)
+    medals_by_country_type = data.groupby(['Country', 'Medal']).size().unstack(fill_value=0)
 
     # Adding a total medal count column
     medals_by_country_type['Total'] = medals_by_country_type.sum(axis=1)
@@ -100,45 +106,38 @@ def process_sport_data(sport, use_modern_names):
         'bronze': 'Bronze',
         'Total': 'Total Medals'
     }, inplace=True)
-
-    if use_modern_names:
-        print(f"Without historical names:\n")
-    else:
-        print(f"With historical names:\n")
-    print(medals_by_country_type)
-
-    return medals_by_country_type
-
-# Function to show the data in the GUI
-def show_data():
-    selected_sport = sport_var.get()
-    use_modern_names = modern_names_var.get() == "Modern"
-    
-    data = process_sport_data(selected_sport, use_modern_names)
     
     # Clear the treeview
     for item in tree.get_children():
         tree.delete(item)
     
     # Insert new data
-    for index, row in data.iterrows():
+    for index, row in medals_by_country_type.iterrows():
         tree.insert("", "end", values=list(row))
 
     if use_modern_names:
         show_map_button.pack()
+        predict_button.pack()
     else:
         show_map_button.pack_forget()
+        predict_button.pack_forget()
 
 # Function to show the choropleth map
 def show_map():
     selected_sport = sport_var.get()
     data = process_sport_data(selected_sport, True)
     
+    # Grouping by country and medal type, then pivoting
+    medals_by_country_type = data.groupby(['Country', 'Medal']).size().unstack(fill_value=0)
+
+    # Adding a total medal count column
+    medals_by_country_type['Total'] = medals_by_country_type.sum(axis=1)
+
     fig = px.choropleth(
-        data_frame=data,
+        data_frame=medals_by_country_type.reset_index(),
         locations="Country",
         locationmode="country names",
-        color="Total Medals",
+        color="Total",
         hover_name="Country",
         color_continuous_scale=px.colors.sequential.Plasma,
         title=f"Total Medals in {selected_sport} (Modern Country Names)"
@@ -150,14 +149,55 @@ def show_bar_chart():
     selected_sport = sport_var.get()
     data = process_sport_data(selected_sport, modern_names_var.get() == "Modern")
     
-    # data_long = data.melt(id_vars='Country', value_vars=['Gold', 'Silver', 'Bronze'], 
-    #                       var_name='Medal', value_name='Count')
+    # Grouping by country and medal type, then pivoting
+    medals_by_country_type = data.groupby(['Country', 'Medal']).size().unstack(fill_value=0)
+
+    # Adding a total medal count column
+    medals_by_country_type['Total'] = medals_by_country_type.sum(axis=1)
     
-    fig = px.histogram(data, x='Country', y='Total Medals', 
+    fig = px.histogram(medals_by_country_type.reset_index(), x='Country', y='Total', 
                        title=f"Total Medals Won By Countries In Olympics {selected_sport}", 
                        barmode='stack')
     fig.update_layout(xaxis={'categoryorder':'total descending'})
     pio.show(fig)
+
+# Function to predict the 2024 winners using linear regression
+def predict_2024_winners():
+    selected_sport = sport_var.get()
+    data = process_sport_data(selected_sport, True)
+    
+    # Prepare the data for linear regression
+    grouped_data = data.groupby(['Year', 'Country']).size().reset_index(name='Total Medals')
+    modern_names_data = grouped_data.groupby('Country').sum().reset_index()
+
+    # Train the linear regression model
+    model = LinearRegression()
+    
+    # Dictionary to store predictions
+    predictions = {}
+    
+    for country in modern_names_data['Country'].unique():
+        country_data = grouped_data[grouped_data['Country'] == country]
+        if len(country_data) >= 2:  # Ensure there is enough data to train the model
+            X = country_data['Year'].values.reshape(-1, 1)
+            y = country_data['Total Medals'].values
+            model.fit(X, y)
+            prediction = model.predict(np.array([[2024]]))
+            predictions[country] = prediction[0]
+    
+    # Create DataFrame from predictions
+    predictions_df = pd.DataFrame(list(predictions.items()), columns=['Country', 'Predicted 2024'])
+    top_5_countries = predictions_df.nlargest(5, 'Predicted 2024')
+    
+    # Display the predictions in the GUI
+    top_5_text = "Top 5 Predicted Countries for 2024:\n"
+    for i, row in top_5_countries.iterrows():
+        top_5_text += f"{i+1}. {row['Country']} - Predicted {row['Predicted 2024']:.2f} medals\n"
+    
+    # Show the predictions in a message box
+    top_5_window = Toplevel(root)
+    top_5_window.title("Prediction for 2024")
+    Label(top_5_window, text=top_5_text, padx=10, pady=10).pack()
 
 # Create the main window
 root = Tk()
@@ -187,6 +227,9 @@ show_map_button = Button(root, text="Show Choropleth Map", command=show_map)
 # Create the button to show the histogram
 show_histogram_button = Button(root, text="Show Histogram", command=show_bar_chart)
 show_histogram_button.pack()
+
+# Create the button to predict 2024 winners
+predict_button = Button(root, text="Predict 2024 Winner", command=predict_2024_winners)
 
 # Create the treeview to display data
 tree = ttk.Treeview(root, columns=("Country", "Bronze", "Gold", "Silver", "Total Medals"), show='headings')
