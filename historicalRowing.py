@@ -1,3 +1,4 @@
+from time import sleep
 import numpy as np  # linear algebra
 import pandas as pd  # data processing, CSV file I/O (e.g. pd.read_csv)
 import plotly.express as px
@@ -125,10 +126,11 @@ Germany Democratic Republic (East Germany) is in 4th place
 Federal Republic of Germany (West Germany) is in 18th place.
 '''
 #producing histogram for top winning country.
+sleep(5)
 fig = px.histogram(df3, x='Country', y='Medal_count',hover_name='Country',  color='Medal', title='Top Medal Winning Countries In Olympics Rowing')
 fig.update_xaxes(categoryorder='total descending')
 fig.update_layout(legend_title_text='Medal')
-#fig.show()
+fig.show()
 
 del df3
 
