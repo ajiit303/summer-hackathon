@@ -1,18 +1,31 @@
 # 🏆 Gold Rush: Predicting the 2024 Olympics Champion 🏅
 
 ## 🌟 Overview
-Welcome to the 2024 Olympics Champion Prediction Project! This project focuses on analyzing historical Olympic Games data to uncover insights about medal counts, athlete performances, and trends across different sports and countries. We use Python along with libraries such as pandas, numpy, and plotly for data manipulation, analysis, and visualization.
+Welcome to Gold Rush! 🌟 We are on an exhilarating journey to predict the champion of the 2024 Paris Olympics. Using the comprehensive Olympic Summer & Winter Games dataset (1896-2022), our interactive visualization tool lets users explore past champions and predict future winners. Click on an event (e.g., basketball) and unveil the historical champions, statistical graphs, and our predictions for who will win gold, silver, and bronze in 2024! 📊✨
 
-## 🤟 Motivation
-The goal of this project is to explore and visualize Olympic data from various perspectives:
-- Understanding medal distributions over time.
-- Analyzing dominant sports and countries in different Olympic Games.
-- Exploring correlations between economic factors and medal performance.
+## 🤟 Features
+- Interactive Visualization Tool: Dive into past champions and future predictions with a simple click! 🖱️
+-Statistical Graphs: Beautiful and insightful graphs to visualize historical data and predictions. 📈
+-Event-Specific Insights: Select an event and see detailed statistics and predictions. 🏀🏊‍♀️🏃‍♂️
+
+## 🚀Tech Stack
+
+We are leveraging the power of **Python** and a host of libraries to bring this project to life:
+
+- **tkinter**: For building our user-friendly GUI. 🎨
+- **pandas**: To handle and manipulate our extensive dataset. 🗃️
+- **re**: For data cleaning and preprocessing. 🧹
+- **plotly.express** & **plotly.io**: To create stunning, interactive plots. 🌐
+- **Linear Regression**: Perfect for predicting outcomes based on historical data trends. 📈
+
+## 💼 How It Works
+
+We use **Linear Regression** to predict the outcomes based on historical data trends. Our tool is designed to provide a seamless and engaging experience, making it easy for users to explore and understand the predictions. 🧩🔍
 
 ## 📂 Project Structure
 The repository is structured as follows:
-- `data/`: Contains datasets in CSV format sourced from Olympic Games archives.
-- `scripts/`: Python scripts for data cleaning, analysis, and visualization.
+- `*.csv`: Contains datasets in CSV format sourced from Olympic Games archives.
+- `visualization_and_predicting.py`: Python scripts for data cleaning, analysis, and visualization.
 - `requirements.txt`: List of dependencies for easy setup.
 
 ## 🚀 Getting Started
@@ -34,7 +47,9 @@ To get started with the project, follow these steps:
     ```
 
 4. Explore the data and run the scripts to predict Olympic champion!
-
+    ```
+    $ python visualization_and_predicting.py
+    ```
 ## 💡 Analysis Techniques
 We employ various analysis techniques, including:
 - Data aggregation and filtering to extract meaningful insights.
@@ -45,12 +60,11 @@ We employ various analysis techniques, including:
 This project is maintained by:
 - 👨‍💻 @Ajiit
 - 👩‍💻 @t!a
-- 👩‍💻 @avocadolol
 
 ## 🥂 Special Thanks
 Special thanks to [Codédex SUMMER HACKATHON](https://www.codedex.io/hackathon) for providing inspiration and support for this project!
 
-## Feedback and Contributions
+## 💪 Feedback and Contributions
 We welcome contributions, feedback, and suggestions:
 - Feel free to open issues for bugs, feature requests, or questions.
 - Submit pull requests with improvements to code, documentation, or analysis insights.
