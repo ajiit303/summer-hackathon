@@ -1,8 +1,9 @@
-from time import sleep
-import numpy as np  # linear algebra
-import pandas as pd  # data processing, CSV file I/O (e.g. pd.read_csv)
+from tkinter import *
+from tkinter import ttk
+import pandas as pd
 import re
 import plotly.express as px
+import plotly.io as pio
 
 # Load the data
 medals = pd.read_csv('olympic_results.csv')
@@ -39,7 +40,7 @@ country_mapping = {
 }
 
 # Function to process each sport
-def process_sport_data(sport):
+def process_sport_data(sport, use_modern_names):
     print(f"Processing data for {sport}...")
 
     sport_data = medals[medals['discipline_title'] == sport]
@@ -77,30 +78,9 @@ def process_sport_data(sport):
         'athlete_full_name': 'Athlete',
     }, inplace=True)
 
-    # Grouping by country and medal type, then pivoting
-    medals_by_country_type = sport_data.groupby(['Country', 'Medal']).size().unstack(fill_value=0)
-
-    # Adding a total medal count column
-    medals_by_country_type['Total'] = medals_by_country_type.sum(axis=1)
-
-    # Sorting by total medal count in descending order
-    medals_by_country_type = medals_by_country_type.sort_values(by='Total', ascending=False).reset_index()
-
-    # Renaming columns for better readability
-    medals_by_country_type.columns.name = None
-    medals_by_country_type.rename(columns={
-        'Country': 'Country',
-        'gold': 'Gold',
-        'silver': 'Silver',
-        'bronze': 'Bronze',
-        'Total': 'Total Medals'
-    }, inplace=True)
-
-    print(f"With historical names:\n")
-    print(medals_by_country_type)
-
-    # Applying country mapping
-    sport_data['Country'] = sport_data['Country'].replace(country_mapping)
+    if use_modern_names:
+        # Applying country mapping for modern names
+        sport_data['Country'] = sport_data['Country'].replace(country_mapping)
 
     # Grouping by country and medal type, then pivoting
     medals_by_country_type = sport_data.groupby(['Country', 'Medal']).size().unstack(fill_value=0)
@@ -121,9 +101,98 @@ def process_sport_data(sport):
         'Total': 'Total Medals'
     }, inplace=True)
 
-    print(f"Without historical names for:\n")
+    if use_modern_names:
+        print(f"Without historical names:\n")
+    else:
+        print(f"With historical names:\n")
     print(medals_by_country_type)
 
-# Process each sport and display the results
-for sport in summer_olympic_sports:
-    process_sport_data(sport)
+    return medals_by_country_type
+
+# Function to show the data in the GUI
+def show_data():
+    selected_sport = sport_var.get()
+    use_modern_names = modern_names_var.get() == "Modern"
+    
+    data = process_sport_data(selected_sport, use_modern_names)
+    
+    # Clear the treeview
+    for item in tree.get_children():
+        tree.delete(item)
+    
+    # Insert new data
+    for index, row in data.iterrows():
+        tree.insert("", "end", values=list(row))
+
+    if use_modern_names:
+        show_map_button.pack()
+    else:
+        show_map_button.pack_forget()
+
+# Function to show the choropleth map
+def show_map():
+    selected_sport = sport_var.get()
+    data = process_sport_data(selected_sport, True)
+    
+    fig = px.choropleth(
+        data_frame=data,
+        locations="Country",
+        locationmode="country names",
+        color="Total Medals",
+        hover_name="Country",
+        color_continuous_scale=px.colors.sequential.Plasma,
+        title=f"Total Medals in {selected_sport} (Modern Country Names)"
+    )
+    fig.show()
+
+# Function to show the bar chart
+def show_bar_chart():
+    selected_sport = sport_var.get()
+    data = process_sport_data(selected_sport, modern_names_var.get() == "Modern")
+    
+    # data_long = data.melt(id_vars='Country', value_vars=['Gold', 'Silver', 'Bronze'], 
+    #                       var_name='Medal', value_name='Count')
+    
+    fig = px.histogram(data, x='Country', y='Total Medals', 
+                       title=f"Total Medals Won By Countries In Olympics {selected_sport}", 
+                       barmode='stack')
+    fig.update_layout(xaxis={'categoryorder':'total descending'})
+    pio.show(fig)
+
+# Create the main window
+root = Tk()
+root.title("Olympic Data Viewer")
+
+# Create the dropdown for sports
+sport_label = Label(root, text="Select Sport:")
+sport_label.pack()
+sport_var = StringVar(value=summer_olympic_sports[0])
+sport_dropdown = ttk.Combobox(root, textvariable=sport_var, values=summer_olympic_sports)
+sport_dropdown.pack()
+
+# Create the dropdown for country naming
+modern_names_label = Label(root, text="Country Names:")
+modern_names_label.pack()
+modern_names_var = StringVar(value="Historic")
+modern_names_dropdown = ttk.Combobox(root, textvariable=modern_names_var, values=["Historic", "Modern"])
+modern_names_dropdown.pack()
+
+# Create the button to show data
+show_button = Button(root, text="Show Data", command=show_data)
+show_button.pack()
+
+# Create the button to show the map
+show_map_button = Button(root, text="Show Choropleth Map", command=show_map)
+
+# Create the button to show the histogram
+show_histogram_button = Button(root, text="Show Histogram", command=show_bar_chart)
+show_histogram_button.pack()
+
+# Create the treeview to display data
+tree = ttk.Treeview(root, columns=("Country", "Bronze", "Gold", "Silver", "Total Medals"), show='headings')
+for col in tree['columns']:
+    tree.heading(col, text=col)
+tree.pack(expand=True, fill='both')
+
+# Run the main loop
+root.mainloop()
