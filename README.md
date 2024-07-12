@@ -1,21 +1,21 @@
 # 🏅 2024 Olympics Champion Prediction📊
 
-## Overview
+## 🌟 Overview
 Welcome to the 2024 Olympics Champion Prediction Project! This project focuses on analyzing historical Olympic Games data to uncover insights about medal counts, athlete performances, and trends across different sports and countries. We use Python along with libraries such as pandas, numpy, and plotly for data manipulation, analysis, and visualization.
 
-## Motivation
+## 🤟 Motivation
 The goal of this project is to explore and visualize Olympic data from various perspectives:
 - Understanding medal distributions over time.
 - Analyzing dominant sports and countries in different Olympic Games.
 - Exploring correlations between economic factors and medal performance.
 
-## Project Structure
+## 📂 Project Structure
 The repository is structured as follows:
 - `data/`: Contains datasets in CSV format sourced from Olympic Games archives.
 - `scripts/`: Python scripts for data cleaning, analysis, and visualization.
 - `requirements.txt`: List of dependencies for easy setup.
 
-## Getting Started
+## 🚀 Getting Started
 To get started with the project, follow these steps:
 
 1. Clone the repository to your local machine:
@@ -35,19 +35,19 @@ To get started with the project, follow these steps:
 
 4. Explore the data and run the scripts to predict Olympic champion!
 
-## Analysis Techniques
+## 💡 Analysis Techniques
 We employ various analysis techniques, including:
 - Data aggregation and filtering to extract meaningful insights.
 - Visualization using interactive charts and graphs with plotly.
 - Statistical analysis to identify trends and patterns.
 
-## Contributors 🚀
+## 💻 Contributors 
 This project is maintained by:
-- @Ajiit
-- @t!a
-- @avocadolol
+- 👨‍💻 @Ajiit
+- 👩‍💻 @t!a
+- 👩‍💻 @avocadolol
 
-## 🌟 Special Thanks
+## 🥂 Special Thanks
 Special thanks to [Codédex SUMMER HACKATHON](https://www.codedex.io/hackathon) for providing inspiration and support for this project!
 
 ## Feedback and Contributions
